@@ -22,6 +22,7 @@ var removeEventsFromCalendar = true; //If you turn this to "true", any event in 
 var addAlerts = true; //Whether to add the ics/ical alerts as notifications on the Google Calendar events
 var descriptionAsTitles = false; //Whether to use the ics/ical descriptions as titles (true) or to use the normal titles as titles (false)
 var defaultDuration = 60; //Default duration (in minutes) in case the event is missing an end specification in the ICS/ICAL file
+var overrideTimeZone = ""; // If this script fails to parse timezone
 
 var emailWhenAdded = false; //Will email you when an event is added to your calendar
 var email = ""; //OPTIONAL: If "emailWhenAdded" is set to true, you will need to provide your email
@@ -287,9 +288,12 @@ function sameEvent(x){
 
 function GetUTCTime(parameter){
   parameter = parameter.substr(1); //Remove leading ; or : character
-  if (parameter.includes("TZID")){
-    var tzid = parameter.split("TZID=")[1].split(":")[0];
+  if (overrideTimeZone || parameter.includes("TZID=")){
     var time = parameter.split(":")[1];
+    var tzid = overrideTimeZone;
+    if (! overrideTimeZone){
+      tzid = parameter.split("TZID=")[1].split(":")[0];
+    }
     return Moment.moment.tz(time,tzid).tz("Etc/UTC").format("YYYYMMDDTHHmmss") + "Z";
   }
   else
